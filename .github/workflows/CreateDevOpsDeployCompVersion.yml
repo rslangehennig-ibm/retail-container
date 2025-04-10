@@ -15,9 +15,8 @@ jobs:
       run: echo "short_commit_id=$(echo ${{ github.event.head_commit.id }} | cut -c1-7)" >> "$GITHUB_ENV"
     - name: Create Component Version
       uses: HCL-TECH-SOFTWARE/devops-deploy-createcomponentversion-action@v2.0
-      #uses: jwcarmichael12/devops-deploy-createcomponentversion-action@main
       with:
-        component: 'CP4A-ModResort-ArgoCD'
+        component: 'Retail-ArgoCD'
         versionname: '${{ env.short_commit_id }}:${{ github.event.head_commit.message }}'
         description: 'Commit ID: ${{ github.event.head_commit.id }} Repository URL: ${{ github.repositoryUrl }}'
         link: '${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.head_commit.id }}'
