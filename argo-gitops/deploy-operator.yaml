@@ -1,0 +1,10 @@
+kind: OpenLibertyApplication
+apiVersion: apps.openliberty.io/v1
+metadata:
+  name: modresorts-container
+  namespace: rlange
+spec:
+  applicationImage: rlangehennig/modresorts:2b9e208a
+  expose: true
+  manageTLS: false
+  replicas: 2

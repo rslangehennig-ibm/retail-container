@@ -1,0 +1,56 @@
+# --------------------------------------------------
+# Run these commands to run modresorts as container
+# --------------------------------------------------
+docker stop modresorts
+
+docker rm modresorts
+
+docker rmi rlangehennig/modresorts
+
+docker pull rlangehennig/modresorts:1.0
+
+docker run -d --name modresorts -p 9180:9080 rlangehennig/modresorts:1.0
+
+
+# -----------------------------------
+# Here is example output
+# -----------------------------------
+
+root@emeraldserver:/# docker stop modresorts
+modresorts
+root@emeraldserver:/# docker rm modresorts
+modresorts
+root@emeraldserver:/# docker rmi rlangehennig/modresorts
+Untagged: rlangehennig/modresorts:latest
+Untagged: rlangehennig/modresorts@sha256:3970e87acca447cf8b29ff89534626a44ddd751af821f878ffa5db62c65927af
+Deleted: sha256:760c355b26759dd61f2d00abf82097685848d72c493fca0726ec436e296ce998
+Deleted: sha256:8b5be4952c72e819113febe97dc5b07974cf87b7befd44fe3a315443f671a01d
+Deleted: sha256:5cff442deba35ffb916d8481462d7111c69cb5f67ef49d16d9a2aaef7138ba5a
+Deleted: sha256:18e44b5a370ec9434ce2d8b182c4b613b9279d9b285376ada6e3cf0b442318b9
+Deleted: sha256:7503d1bdb444ad9984df3c2ca2e7d25cdc40f41916b0e0fec842e036b55b242e
+root@emeraldserver:/# docker pull rlangehennig/modresorts:1.0
+1.0: Pulling from rlangehennig/modresorts
+Digest: sha256:7aab4df18b50413ba5c8a952b30e86693541ab819eb3f0dd388dd6250cd3eb9c
+Status: Image is up to date for rlangehennig/modresorts:1.0
+docker.io/rlangehennig/modresorts:1.0
+root@emeraldserver:/# docker run -d --name modresorts -p 9180:9080 rlangehennig/modresorts:1.0
+2646dfa0473c8e75296560b457041618c7b969bb2bed69eb1d1cdbd548982926
+root@emeraldserver:/# docker logs -f modresorts
+
+Launching defaultServer (WebSphere Application Server 24.0.0.3/wlp-1.0.87.cl240320240311-1901) on Eclipse OpenJ9 VM, version 1.8.0_402-b06 (en_US)
+[AUDIT   ] CWWKE0001I: The server defaultServer has been launched.
+[AUDIT   ] CWWKE0100I: This product is licensed for development, and limited production use. The full license terms can be viewed here: https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/license/base_ilan/ilan/24.0.0.3/lafiles/en.html
+[AUDIT   ] CWWKG0093A: Processing configuration drop-ins resource: /opt/ibm/wlp/usr/servers/defaultServer/configDropins/defaults/keystore.xml
+[AUDIT   ] CWWKG0093A: Processing configuration drop-ins resource: /opt/ibm/wlp/usr/servers/defaultServer/configDropins/overrides/tls.xml
+[AUDIT   ] CWWKZ0058I: Monitoring dropins for applications.
+[WARNING ] CWPKI0807W: The keyStore location /opt/ibm/wlp/output/defaultServer/resources/security/modresorts-1_0_war_ear_Default01Cell_CellDefaultTrustStore_trust.p12 could not be found for element with id attribute CellDefaultTrustStore_Default01Cell_KeyStore_2.
+[ERROR   ] CWPKI0033E: The keystore located at modresorts-1_0_war_ear_Default01Cell_CellDefaultTrustStore_trust.p12 did not load because of the following error: KeyStore "modresorts-1_0_war_ear_Default01Cell_CellDefaultTrustStore_trust.p12" does not exist.
+[WARNING ] CWPKI0809W: There is a failure loading the CellDefaultTrustStore_Default01Cell_KeyStore_2 keystore. If an SSL configuration references the CellDefaultTrustStore_Default01Cell_KeyStore_2 keystore, then the SSL configuration will fail to initialize.  
+[WARNING ] CWPKI0807W: The keyStore location /opt/ibm/wlp/output/defaultServer/resources/security/modresorts-1_0_war_ear_AppSrv1Node_NodeDefaultKeyStore_key.p12 could not be found for element with id attribute NodeDefaultKeyStore_Default01Cell_KeyStore_1643302261819.
+[ERROR   ] CWPKI0033E: The keystore located at modresorts-1_0_war_ear_AppSrv1Node_NodeDefaultKeyStore_key.p12 did not load because of the following error: KeyStore "modresorts-1_0_war_ear_AppSrv1Node_NodeDefaultKeyStore_key.p12" does not exist.
+[WARNING ] CWPKI0809W: There is a failure loading the NodeDefaultKeyStore_Default01Cell_KeyStore_1643302261819 keystore. If an SSL configuration references the NodeDefaultKeyStore_Default01Cell_KeyStore_1643302261819 keystore, then the SSL configuration will fail to initialize.  
+[AUDIT   ] CWWKT0016I: Web application available (default_host): http://2646dfa0473c:9080/resorts/
+[AUDIT   ] CWWKZ0001I: Application modresorts-1.0 started in 0.662 seconds.
+[AUDIT   ] CWWKF0012I: The server installed the following features: [jndi-1.0, monitor-1.0, servlet-4.0, ssl-1.0, transportSecurity-1.0].
+[AUDIT   ] CWWKF0011I: The defaultServer server is ready to run a smarter planet. The defaultServer server started in 2.490 seconds.
+

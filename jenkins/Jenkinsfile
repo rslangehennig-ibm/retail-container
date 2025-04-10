@@ -1,0 +1,94 @@
+node {
+    //URL to Github repository https://github.com/<owner>/<repo>
+    def GITHUB_REPO_URL="https://ghp_@github.com/rslangehennig-ibm/modresort-container"
+    //Retrieve ENV ID values for DEV and QA from "Download attributes from API" json file
+    def VELOCITY_ENV_ID_DEV="a4a91beb-e2be-4da5-896a-78632d3b451c"
+    //VELOCITY_APP_NAME must match your Velocity pipeline application name
+    def VELOCITY_APP_NAME="Mod-Resorts"
+    //Version number 
+    def VERSION_NUMBER="1"
+    //Do not change below this line.
+    def GIT_COMMIT
+    
+    stage ('cloning the repository'){
+        currentBuild.displayName = "${VERSION_NUMBER}.${BUILD_NUMBER}"
+        echo currentBuild.displayName = "${currentBuild.displayName}"
+        majorVersion="${BUILD_NUMBER}"
+        def scm = git branch: 'main', url: "${GITHUB_REPO_URL}"
+        GIT_COMMIT = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+        echo "GIT_COMMIT=${GIT_COMMIT}"
+    }
+    
+    stage ('build') {
+        sh '''echo $WORKSPACE
+              java -version
+              which java
+              echo $JAVA_HOME
+              pwd
+              ls -al
+
+              # docker build -t modresorts -f Containerfile .
+              # docker tag modresorts:latest rlangehennig/modresorts:1.0
+              # docker login -u "rlangehennig" -p "N<mypassword>C!"
+              # docker push rlangehennig/modresorts:1.0
+
+              '''
+    }
+    
+    stage ('Generate war artifact') {
+        sh '''# update the version number in the banner.html
+        cd src
+        pwd
+        ls -al
+
+        sleep 5'''
+    }
+ 
+    /*
+    stage ('Send metrics to UCV') {
+         echo "Building ${VELOCITY_APP_NAME} (Build:${currentBuild.displayName}, GIT_COMMIT:${GIT_COMMIT})"
+         step($class: 'UploadBuild',
+             tenantId: "5ade13625558f2c6688d15ce",
+             revision: "${GIT_COMMIT}",
+             appName: "${VELOCITY_APP_NAME}",
+             versionName:"${currentBuild.displayName}",
+             requestor: "admin", id: "${currentBuild.displayName}")
+    }
+    */
+    
+    stage ('Run Unit Tests') {
+        echo 'Running Unit Tests'
+        sleep 10
+    }
+
+    stage ('Push Artifact of Build to DevOps Deploy') {
+         sh '''export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
+               export UCD_AUTH_TOKEN="9"
+               export UCD_WEB_URL="https://:8444"
+               
+               echo $BUILD_NUMBER
+               CURRENT_BUILD="2.0.${BUILD_NUMBER}"
+               # Create new component version
+               echo "Create new component version"
+               /opt/IBM/udclient/udclient -weburl $UCD_WEB_URL -authtoken $UCD_AUTH_TOKEN createVersion -component CP4A-ModResort-Container -name latest
+               /opt/IBM/udclient/udclient -weburl $UCD_WEB_URL -authtoken $UCD_AUTH_TOKEN addVersionLink -component CP4A-ModResort-Container -version latest -linkName "Jenkins Pipeline" -link http://52.:8081/job/Mod-Resorts/job/Mod-Resorts-Container/${BUILD_NUMBER}/
+               #/opt/IBM/udclient/udclient -weburl $UCD_WEB_URL -authtoken $UCD_AUTH_TOKEN addVersionFiles -component CP4A-ModResort-Container -version $CURRENT_BUILD -base "/opt/jenkins-agent/workspace/Mod-Resorts/Mod-Resorts/output2"
+               # Add a component status to allow it to pass gates in UCD
+               echo "Adding component status"
+               #/opt/IBM/udclient/udclient -weburl $UCD_WEB_URL -authtoken $UCD_AUTH_TOKEN addVersionStatus -component CP4A-ModResort-Container -version $CURRENT_BUILD -status "Unit Tests Passed"
+        
+               # Create snapshot
+               #echo "Create new snapshot"
+               #cp urbancode/snapshot.json .
+               #sed -i "s/MYNAME/$CURRENT_BUILD/g" snapshot.json
+               #cat snapshot.json
+               #/opt/IBM/udclient/udclient -weburl $UCD_WEB_URL -authtoken $UCD_AUTH_TOKEN createSnapshot snapshot.json
+               
+               # Deploy snapshot to DEV environment
+               #cp urbancode/deploy-snapshot.json .
+               #sed -i "s/MYNAME/$CURRENT_BUILD/g" deploy-snapshot.json
+               #cat deploy-snapshot.json
+               #/opt/IBM/udclient/udclient -weburl $UCD_WEB_URL -authtoken $UCD_AUTH_TOKEN requestApplicationProcess deploy-snapshot.json
+               '''
+    }
+}

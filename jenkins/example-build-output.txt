@@ -1,0 +1,98 @@
+root@randy03:/downloads/modresorts10war.ear_migrationBundle# docker build -t modresorts -f Containerfile .
+Sending build context to Docker daemon  613.4MB
+[WARNING]: Empty continuation line found in:
+    RUN mkdir -p /config/apps &&     mkdir -p /sharedlibs &&     cp ./src/main/liberty/config/* /config &&     cp ./target/*.*ar /config/apps/ &&     if [ ! -z "$(ls ./src/main/liberty/lib 2>/dev/null)" ]; then         cp -r ./src/main/liberty/lib/* /sharedlibs;     fi
+[WARNING]: Empty continuation lines will become errors in a future release.
+Step 1/14 : FROM icr.io/appcafe/ibm-semeru-runtimes:open-8-jdk-focal AS build-stage
+ ---> b0dc6bef88e9
+Step 2/14 : RUN apt-get update &&     apt-get install -y maven unzip
+ ---> Using cache
+ ---> 7b55cae4271a
+Step 3/14 : COPY . /project
+ ---> 144b7c04470c
+Step 4/14 : WORKDIR /project
+ ---> Running in 53b28bf74843
+Removing intermediate container 53b28bf74843
+ ---> 7a989ba3f506
+Step 5/14 : RUN mkdir -p /config/apps &&     mkdir -p /sharedlibs &&     cp ./src/main/liberty/config/* /config &&     cp ./target/*.*ar /config/apps/ &&     if [ ! -z "$(ls ./src/main/liberty/lib 2>/dev/null)" ]; then         cp -r ./src/main/liberty/lib/* /sharedlibs;     fi
+ ---> Running in 8f7558aeeb38
+Removing intermediate container 8f7558aeeb38
+ ---> 89801bf2fdc8
+Step 6/14 : FROM icr.io/appcafe/websphere-liberty:kernel-java8-openj9-ubi
+ ---> a8e754193d97
+Step 7/14 : ARG TLS=true
+ ---> Using cache
+ ---> f998b3c3b2c8
+Step 8/14 : RUN mkdir -p /opt/ibm/wlp/usr/shared/config/lib/global
+ ---> Using cache
+ ---> 8ed95243f38d
+Step 9/14 : COPY --chown=1001:0 --from=build-stage /config/ /config/
+ ---> 60a18ac44d71
+Step 10/14 : COPY --chown=1001:0 --from=build-stage /sharedlibs/ /opt/ibm/wlp/usr/shared/config/lib/global
+ ---> 0ece0a5c94fd
+Step 11/14 : RUN features.sh
+ ---> Running in d054009a4c56
++ SNIPPETS_SOURCE=/opt/ibm/helpers/build/configuration_snippets
++ SNIPPETS_TARGET=/config/configDropins/overrides
++ SNIPPETS_TARGET_DEFAULTS=/config/configDropins/defaults
++ mkdir -p /config/configDropins/overrides
++ mkdir -p /config/configDropins/defaults
++ '[' -n '' ']'
++ '[' '' == client ']'
++ '[' '' == embedded ']'
++ [[ -n '' ]]
++ '[' '' == true ']'
++ '[' true == true ']'
++ cp /opt/ibm/helpers/build/configuration_snippets/tls.xml /config/configDropins/overrides/tls.xml
++ featureUtility installServerFeatures --acceptLicense defaultServer --noCache
++ xargs -0 -r chmod g+rw
++ find /opt/ibm/wlp/lib /opt/ibm/wlp/bin '!' -perm -g=rw -print0
++ echo 'features.sh script has been run'
+Removing intermediate container d054009a4c56
+ ---> 4f9631181c56
+Step 12/14 : RUN configure.sh
+ ---> Running in 96cc4bc78b8b
+Removing intermediate container 96cc4bc78b8b
+ ---> 6861406eeec9
+Step 13/14 : ARG LICENSE_JAR_URL
+ ---> Running in ab14631b8158
+Removing intermediate container ab14631b8158
+ ---> ff67040419f0
+Step 14/14 : RUN    if [ $LICENSE_JAR_URL ]; then      wget $LICENSE_JAR_URL -O /tmp/license.jar      && java -jar /tmp/license.jar -acceptLicense /opt/ibm      && rm /tmp/license.jar;    fi
+ ---> Running in 7f217938cd60
+Removing intermediate container 7f217938cd60
+ ---> b62ce6c752bc
+Successfully built b62ce6c752bc
+Successfully tagged modresorts:latest
+
+
+
+root@randy03:/downloads/modresorts10war.ear_migrationBundle# docker tag modresorts:latest rlangehennig/modresorts:1.0
+root@randy03:/downloads/modresorts10war.ear_migrationBundle# docker login -u "rlangehennig" -p "N!"
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+root@randy03:/downloads/modresorts10war.ear_migrationBundle# docker push rlangehennig/modresorts:1.0
+The push refers to repository [docker.io/rlangehennig/modresorts]
+e3761c090e17: Pushed 
+23b465d4cae3: Pushed 
+cbff87f1d3d8: Pushed 
+ec1dcf1db7bd: Pushed 
+af499e29e745: Layer already exists 
+fec3501959d2: Layer already exists 
+ed11f54e481c: Layer already exists 
+965bda197f8a: Layer already exists 
+61a5d48c9054: Layer already exists 
+09eee6ab9caa: Layer already exists 
+c5cad1e5f816: Layer already exists 
+7b9f90489083: Layer already exists 
+61d385b61f0b: Layer already exists 
+a94b393995db: Layer already exists 
+559bf22d29ee: Layer already exists 
+ab873b3f657b: Layer already exists 
+64ab83fa82a1: Layer already exists 
+d65f092b0d6b: Layer already exists 
+4f4838350097: Layer already exists 
+ecf6a89969f5: Layer already exists 
+1.0: digest: sha256:7aab4df18b50413ba5c8a952b30e86693541ab819eb3f0dd388dd6250cd3eb9c size: 4514
