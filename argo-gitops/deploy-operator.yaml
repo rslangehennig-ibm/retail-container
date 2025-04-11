@@ -7,4 +7,4 @@ spec:
   applicationImage: rlangehennig/modresorts:2b9e208a
   expose: true
   manageTLS: false
-  replicas: 1
+  replicas: 3
